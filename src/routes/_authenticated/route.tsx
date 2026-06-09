@@ -26,9 +26,9 @@ function AuthedLayout() {
 
   const nav = [
     { to: "/app", label: "Painel", icon: LayoutDashboard },
-    { to: "/app/ia", label: "IA Professora", icon: MessageSquare },
-    { to: "/app/redacao", label: "Redação", icon: PenLine },
-  ];
+    { to: "/ia", label: "IA Professora", icon: MessageSquare },
+    { to: "/redacao", label: "Redação", icon: PenLine },
+  ] as const;
 
   return (
     <div className="min-h-screen bg-background">
