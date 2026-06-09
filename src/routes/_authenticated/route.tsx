@@ -1,7 +1,7 @@
 import { createFileRoute, Outlet, redirect, Link, useRouter, useLocation } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { GraduationCap, MessageSquare, PenLine, LayoutDashboard, LogOut, Sparkles } from "lucide-react";
+import { GraduationCap, MessageSquare, PenLine, LayoutDashboard, LogOut } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated")({
@@ -79,4 +79,4 @@ function AuthedLayout() {
   );
 }
 
-export { Sparkles }; // (avoid unused import warning if needed)
+
