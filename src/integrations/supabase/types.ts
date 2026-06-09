@@ -14,7 +14,146 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      conversas_ia: {
+        Row: {
+          created_at: string
+          id: string
+          titulo: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          titulo?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          titulo?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      mensagens_ia: {
+        Row: {
+          content: string
+          conversa_id: string
+          created_at: string
+          id: string
+          role: string
+          user_id: string
+        }
+        Insert: {
+          content: string
+          conversa_id: string
+          created_at?: string
+          id?: string
+          role: string
+          user_id: string
+        }
+        Update: {
+          content?: string
+          conversa_id?: string
+          created_at?: string
+          id?: string
+          role?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mensagens_ia_conversa_id_fkey"
+            columns: ["conversa_id"]
+            isOneToOne: false
+            referencedRelation: "conversas_ia"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          email: string | null
+          id: string
+          nome: string | null
+          plano: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          email?: string | null
+          id: string
+          nome?: string | null
+          plano?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string | null
+          id?: string
+          nome?: string | null
+          plano?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      redacoes: {
+        Row: {
+          created_at: string
+          feedback_geral: string | null
+          id: string
+          nota_c1: number | null
+          nota_c2: number | null
+          nota_c3: number | null
+          nota_c4: number | null
+          nota_c5: number | null
+          nota_total: number | null
+          status: string
+          sugestoes: string | null
+          tema: string
+          texto: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          feedback_geral?: string | null
+          id?: string
+          nota_c1?: number | null
+          nota_c2?: number | null
+          nota_c3?: number | null
+          nota_c4?: number | null
+          nota_c5?: number | null
+          nota_total?: number | null
+          status?: string
+          sugestoes?: string | null
+          tema: string
+          texto: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          feedback_geral?: string | null
+          id?: string
+          nota_c1?: number | null
+          nota_c2?: number | null
+          nota_c3?: number | null
+          nota_c4?: number | null
+          nota_c5?: number | null
+          nota_total?: number | null
+          status?: string
+          sugestoes?: string | null
+          tema?: string
+          texto?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
