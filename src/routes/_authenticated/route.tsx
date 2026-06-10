@@ -1,8 +1,10 @@
 import { createFileRoute, Outlet, redirect, Link, useRouter, useLocation } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { GraduationCap, MessageSquare, PenLine, LayoutDashboard, LogOut } from "lucide-react";
+import { GraduationCap, MessageSquare, PenLine, LayoutDashboard, LogOut, Crown } from "lucide-react";
 import { toast } from "sonner";
+import { checkIsAdmin } from "@/lib/admin.functions";
 
 export const Route = createFileRoute("/_authenticated")({
   ssr: false,
@@ -18,6 +20,12 @@ function AuthedLayout() {
   const router = useRouter();
   const location = useLocation();
 
+  const { data: adminInfo } = useQuery({
+    queryKey: ["is-admin"],
+    queryFn: () => checkIsAdmin(),
+    staleTime: 5 * 60 * 1000,
+  });
+
   async function logout() {
     await supabase.auth.signOut();
     toast.success("Sessão encerrada");
@@ -28,6 +36,7 @@ function AuthedLayout() {
     { to: "/app", label: "Painel", icon: LayoutDashboard },
     { to: "/ia", label: "IA Professora", icon: MessageSquare },
     { to: "/redacao", label: "Redação", icon: PenLine },
+    ...(adminInfo?.isAdmin ? [{ to: "/admin", label: "Admin", icon: Crown }] : []),
   ] as const;
 
   return (

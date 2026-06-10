@@ -44,11 +44,34 @@ async function callOpenAI(messages: Array<{ role: string; content: string }>) {
   return data.choices[0].message.content as string;
 }
 
+const LIMITE_MENSAGENS_DIA_FREE = 20;
+const LIMITE_REDACOES_MES_FREE = 3;
+
+async function isPremiumUser(supabase: any, userId: string): Promise<boolean> {
+  const { data } = await supabase.rpc("is_premium", { _user_id: userId });
+  return !!data;
+}
+
 export const sendChatMessage = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data: unknown) => ChatInput.parse(data))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
+
+    const premium = await isPremiumUser(supabase, userId);
+    if (!premium) {
+      const desde = new Date();
+      desde.setHours(0, 0, 0, 0);
+      const { count } = await supabase
+        .from("mensagens_ia")
+        .select("id", { count: "exact", head: true })
+        .eq("user_id", userId)
+        .eq("role", "user")
+        .gte("created_at", desde.toISOString());
+      if ((count ?? 0) >= LIMITE_MENSAGENS_DIA_FREE) {
+        throw new Error(`Limite diário do plano gratuito atingido (${LIMITE_MENSAGENS_DIA_FREE} mensagens). Faça upgrade para Premium em /planos para usar a IA sem limites.`);
+      }
+    }
 
     // Verify conversa belongs to user
     const { data: conversa } = await supabase
@@ -143,6 +166,21 @@ export const corrigirRedacao = createServerFn({ method: "POST" })
   .inputValidator((data: unknown) => RedacaoInput.parse(data))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
+
+    const premium = await isPremiumUser(supabase, userId);
+    if (!premium) {
+      const inicioMes = new Date();
+      inicioMes.setDate(1);
+      inicioMes.setHours(0, 0, 0, 0);
+      const { count } = await supabase
+        .from("redacoes")
+        .select("id", { count: "exact", head: true })
+        .eq("user_id", userId)
+        .gte("created_at", inicioMes.toISOString());
+      if ((count ?? 0) >= LIMITE_REDACOES_MES_FREE) {
+        throw new Error(`Limite mensal do plano gratuito atingido (${LIMITE_REDACOES_MES_FREE} redações). Faça upgrade para Premium em /planos para corrigir redações ilimitadas.`);
+      }
+    }
 
     // Insert as pending
     const { data: red, error } = await supabase

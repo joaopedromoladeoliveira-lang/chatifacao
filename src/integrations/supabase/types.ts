@@ -38,6 +38,45 @@ export type Database = {
         }
         Relationships: []
       }
+      historico_premium: {
+        Row: {
+          acao: string
+          admin_id: string | null
+          created_at: string
+          id: string
+          observacao: string | null
+          premium_ate_antes: string | null
+          premium_ate_depois: string | null
+          user_id: string
+          vitalicio_antes: boolean | null
+          vitalicio_depois: boolean | null
+        }
+        Insert: {
+          acao: string
+          admin_id?: string | null
+          created_at?: string
+          id?: string
+          observacao?: string | null
+          premium_ate_antes?: string | null
+          premium_ate_depois?: string | null
+          user_id: string
+          vitalicio_antes?: boolean | null
+          vitalicio_depois?: boolean | null
+        }
+        Update: {
+          acao?: string
+          admin_id?: string | null
+          created_at?: string
+          id?: string
+          observacao?: string | null
+          premium_ate_antes?: string | null
+          premium_ate_depois?: string | null
+          user_id?: string
+          vitalicio_antes?: boolean | null
+          vitalicio_depois?: boolean | null
+        }
+        Relationships: []
+      }
       mensagens_ia: {
         Row: {
           content: string
@@ -80,6 +119,9 @@ export type Database = {
           id: string
           nome: string | null
           plano: string
+          premium_ate: string | null
+          premium_concedido_por: string | null
+          premium_vitalicio: boolean
           updated_at: string
         }
         Insert: {
@@ -88,6 +130,9 @@ export type Database = {
           id: string
           nome?: string | null
           plano?: string
+          premium_ate?: string | null
+          premium_concedido_por?: string | null
+          premium_vitalicio?: boolean
           updated_at?: string
         }
         Update: {
@@ -96,6 +141,9 @@ export type Database = {
           id?: string
           nome?: string | null
           plano?: string
+          premium_ate?: string | null
+          premium_concedido_por?: string | null
+          premium_vitalicio?: boolean
           updated_at?: string
         }
         Relationships: []
@@ -154,15 +202,43 @@ export type Database = {
         }
         Relationships: []
       }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
+      is_premium: { Args: { _user_id: string }; Returns: boolean }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "user"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -289,6 +365,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "user"],
+    },
   },
 } as const
