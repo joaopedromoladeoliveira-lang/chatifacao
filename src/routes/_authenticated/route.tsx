@@ -2,7 +2,7 @@ import { createFileRoute, Outlet, redirect, Link, useRouter, useLocation } from 
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { GraduationCap, MessageSquare, PenLine, LayoutDashboard, LogOut, Crown } from "lucide-react";
+import { GraduationCap, MessageSquare, PenLine, LayoutDashboard, LogOut, Crown, ClipboardList, BarChart3 } from "lucide-react";
 import { toast } from "sonner";
 import { checkIsAdmin } from "@/lib/admin.functions";
 
@@ -34,8 +34,10 @@ function AuthedLayout() {
 
   const nav = [
     { to: "/app", label: "Painel", icon: LayoutDashboard },
+    { to: "/simulados", label: "Simulados", icon: ClipboardList },
     { to: "/ia", label: "IA Professora", icon: MessageSquare },
     { to: "/redacao", label: "Redação", icon: PenLine },
+    { to: "/desempenho", label: "Desempenho", icon: BarChart3 },
     ...(adminInfo?.isAdmin ? [{ to: "/admin", label: "Admin", icon: Crown }] : []),
   ] as const;
 
