@@ -20,6 +20,12 @@ function AuthedLayout() {
   const router = useRouter();
   const location = useLocation();
 
+  const { data: adminInfo } = useQuery({
+    queryKey: ["is-admin"],
+    queryFn: () => checkIsAdmin(),
+    staleTime: 5 * 60 * 1000,
+  });
+
   async function logout() {
     await supabase.auth.signOut();
     toast.success("Sessão encerrada");
@@ -30,6 +36,7 @@ function AuthedLayout() {
     { to: "/app", label: "Painel", icon: LayoutDashboard },
     { to: "/ia", label: "IA Professora", icon: MessageSquare },
     { to: "/redacao", label: "Redação", icon: PenLine },
+    ...(adminInfo?.isAdmin ? [{ to: "/admin", label: "Admin", icon: Crown }] : []),
   ] as const;
 
   return (
