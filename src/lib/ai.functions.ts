@@ -167,6 +167,21 @@ export const corrigirRedacao = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
 
+    const premium = await isPremiumUser(supabase, userId);
+    if (!premium) {
+      const inicioMes = new Date();
+      inicioMes.setDate(1);
+      inicioMes.setHours(0, 0, 0, 0);
+      const { count } = await supabase
+        .from("redacoes")
+        .select("id", { count: "exact", head: true })
+        .eq("user_id", userId)
+        .gte("created_at", inicioMes.toISOString());
+      if ((count ?? 0) >= LIMITE_REDACOES_MES_FREE) {
+        throw new Error(`Limite mensal do plano gratuito atingido (${LIMITE_REDACOES_MES_FREE} redações). Faça upgrade para Premium em /planos para corrigir redações ilimitadas.`);
+      }
+    }
+
     // Insert as pending
     const { data: red, error } = await supabase
       .from("redacoes")
