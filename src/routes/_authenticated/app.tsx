@@ -75,8 +75,8 @@ function Dashboard() {
 
       <div className="mt-10 rounded-2xl border border-dashed bg-muted/30 p-6 text-center">
         <Sparkles className="mx-auto mb-2 h-6 w-6 text-primary" />
-        <h4 className="font-semibold">Em breve</h4>
-        <p className="mt-1 text-sm text-muted-foreground">Simulados ENEM, ranking nacional, pagamentos Stripe e painel admin.</p>
+        <h4 className="font-semibold">Acompanhe sua evolução</h4>
+        <p className="mt-1 text-sm text-muted-foreground">Faça simulados e veja gráficos completos do seu desempenho na aba <Link to="/desempenho" className="text-primary hover:underline">Desempenho</Link>.</p>
       </div>
     </div>
   );
