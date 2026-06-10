@@ -83,7 +83,7 @@ function SimuladoPage() {
                   <p className="text-sm font-medium">{i+1}. {q.enunciado}</p>
                   <div className="mt-2 grid gap-1 text-sm">
                     {LETRAS.map(l => {
-                      const text = q[`alternativa_${l.toLowerCase()}`];
+                      const text = (q as any)[`alternativa_${l.toLowerCase()}`];
                       if (!text) return null;
                       const isCorreta = q.correta === l;
                       const isMinha = r?.resposta === l;

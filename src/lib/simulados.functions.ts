@@ -143,7 +143,7 @@ export const finalizarSimulado = createServerFn({ method: "POST" })
       .from("tentativas_simulado")
       .update({
         acertos,
-        pontuacao: pontuacao.toFixed(2),
+        pontuacao: Number(pontuacao.toFixed(2)),
         tempo_segundos: tempo,
         finalizado_em: new Date().toISOString(),
         status: "finalizada",
