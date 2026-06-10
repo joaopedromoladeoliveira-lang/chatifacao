@@ -125,7 +125,7 @@ function SimuladoPage() {
 
         <div className="mt-5 space-y-2">
           {LETRAS.map(l => {
-            const text = q[`alternativa_${l.toLowerCase()}`];
+            const text = (q as any)[`alternativa_${l.toLowerCase()}`];
             if (!text) return null;
             const selecionada = respAtual?.resposta === l;
             return (
