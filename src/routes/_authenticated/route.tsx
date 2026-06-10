@@ -1,8 +1,10 @@
 import { createFileRoute, Outlet, redirect, Link, useRouter, useLocation } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { GraduationCap, MessageSquare, PenLine, LayoutDashboard, LogOut } from "lucide-react";
+import { GraduationCap, MessageSquare, PenLine, LayoutDashboard, LogOut, Crown } from "lucide-react";
 import { toast } from "sonner";
+import { checkIsAdmin } from "@/lib/admin.functions";
 
 export const Route = createFileRoute("/_authenticated")({
   ssr: false,
