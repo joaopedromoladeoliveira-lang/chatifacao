@@ -68,18 +68,32 @@ export const getTentativaQuestoes = createServerFn({ method: "POST" })
       .maybeSingle();
     if (!tent) throw new Error("Tentativa não encontrada");
 
-    const { data: questoes } = await supabase
-      .from("questoes")
-      .select("id, ordem, enunciado, alternativa_a, alternativa_b, alternativa_c, alternativa_d, alternativa_e, materia")
-      .eq("simulado_id", tent.simulado_id)
-      .order("ordem");
+    // Only include `correta`/`explicacao` after the attempt is finalized (review mode).
+    const isFinalized = tent.status === "finalizada";
+    let questoes: any[] = [];
+    if (isFinalized) {
+      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+      const { data: qs } = await supabaseAdmin
+        .from("questoes")
+        .select("id, ordem, enunciado, alternativa_a, alternativa_b, alternativa_c, alternativa_d, alternativa_e, materia, correta, explicacao")
+        .eq("simulado_id", tent.simulado_id)
+        .order("ordem");
+      questoes = qs ?? [];
+    } else {
+      const { data: qs } = await supabase
+        .from("questoes")
+        .select("id, ordem, enunciado, alternativa_a, alternativa_b, alternativa_c, alternativa_d, alternativa_e, materia")
+        .eq("simulado_id", tent.simulado_id)
+        .order("ordem");
+      questoes = qs ?? [];
+    }
 
     const { data: respostas } = await supabase
       .from("respostas_questao")
       .select("questao_id, resposta, correta")
       .eq("tentativa_id", data.tentativaId);
 
-    return { tentativa: tent, questoes: questoes ?? [], respostas: respostas ?? [] };
+    return { tentativa: tent, questoes, respostas: respostas ?? [] };
   });
 
 export const responderQuestao = createServerFn({ method: "POST" })
@@ -94,7 +108,19 @@ export const responderQuestao = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
 
-    const { data: q } = await supabase
+    // Verify tentativa belongs to the user and is still in progress.
+    const { data: tent } = await supabase
+      .from("tentativas_simulado")
+      .select("id, status")
+      .eq("id", data.tentativaId)
+      .eq("user_id", userId)
+      .maybeSingle();
+    if (!tent) throw new Error("Tentativa não encontrada");
+    if (tent.status !== "em_andamento") throw new Error("Tentativa já finalizada");
+
+    // Read the correct answer with the service role so it is never exposed to the client.
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: q } = await supabaseAdmin
       .from("questoes")
       .select("correta")
       .eq("id", data.questaoId)
