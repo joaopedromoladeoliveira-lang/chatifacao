@@ -24,6 +24,7 @@ import { Route as AuthenticatedAppRouteImport } from './routes/_authenticated/ap
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as ApiPublicStripeWebhookRouteImport } from './routes/api/public/stripe-webhook'
 import { Route as AuthenticatedSimuladoIdRouteImport } from './routes/_authenticated/simulado.$id'
+import { Route as AuthenticatedSimuladoIaIdRouteImport } from './routes/_authenticated/simulado-ia.$id'
 import { Route as AuthenticatedAdminLogsRouteImport } from './routes/_authenticated/admin.logs'
 
 const ResetPasswordRoute = ResetPasswordRouteImport.update({
@@ -100,6 +101,12 @@ const AuthenticatedSimuladoIdRoute = AuthenticatedSimuladoIdRouteImport.update({
   path: '/simulado/$id',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedSimuladoIaIdRoute =
+  AuthenticatedSimuladoIaIdRouteImport.update({
+    id: '/$id',
+    path: '/$id',
+    getParentRoute: () => AuthenticatedSimuladoIaRoute,
+  } as any)
 const AuthenticatedAdminLogsRoute = AuthenticatedAdminLogsRouteImport.update({
   id: '/logs',
   path: '/logs',
@@ -117,9 +124,10 @@ export interface FileRoutesByFullPath {
   '/ia': typeof AuthenticatedIaRoute
   '/planos': typeof AuthenticatedPlanosRoute
   '/redacao': typeof AuthenticatedRedacaoRoute
-  '/simulado-ia': typeof AuthenticatedSimuladoIaRoute
+  '/simulado-ia': typeof AuthenticatedSimuladoIaRouteWithChildren
   '/simulados': typeof AuthenticatedSimuladosRoute
   '/admin/logs': typeof AuthenticatedAdminLogsRoute
+  '/simulado-ia/$id': typeof AuthenticatedSimuladoIaIdRoute
   '/simulado/$id': typeof AuthenticatedSimuladoIdRoute
   '/api/public/stripe-webhook': typeof ApiPublicStripeWebhookRoute
 }
@@ -134,9 +142,10 @@ export interface FileRoutesByTo {
   '/ia': typeof AuthenticatedIaRoute
   '/planos': typeof AuthenticatedPlanosRoute
   '/redacao': typeof AuthenticatedRedacaoRoute
-  '/simulado-ia': typeof AuthenticatedSimuladoIaRoute
+  '/simulado-ia': typeof AuthenticatedSimuladoIaRouteWithChildren
   '/simulados': typeof AuthenticatedSimuladosRoute
   '/admin/logs': typeof AuthenticatedAdminLogsRoute
+  '/simulado-ia/$id': typeof AuthenticatedSimuladoIaIdRoute
   '/simulado/$id': typeof AuthenticatedSimuladoIdRoute
   '/api/public/stripe-webhook': typeof ApiPublicStripeWebhookRoute
 }
@@ -153,9 +162,10 @@ export interface FileRoutesById {
   '/_authenticated/ia': typeof AuthenticatedIaRoute
   '/_authenticated/planos': typeof AuthenticatedPlanosRoute
   '/_authenticated/redacao': typeof AuthenticatedRedacaoRoute
-  '/_authenticated/simulado-ia': typeof AuthenticatedSimuladoIaRoute
+  '/_authenticated/simulado-ia': typeof AuthenticatedSimuladoIaRouteWithChildren
   '/_authenticated/simulados': typeof AuthenticatedSimuladosRoute
   '/_authenticated/admin/logs': typeof AuthenticatedAdminLogsRoute
+  '/_authenticated/simulado-ia/$id': typeof AuthenticatedSimuladoIaIdRoute
   '/_authenticated/simulado/$id': typeof AuthenticatedSimuladoIdRoute
   '/api/public/stripe-webhook': typeof ApiPublicStripeWebhookRoute
 }
@@ -175,6 +185,7 @@ export interface FileRouteTypes {
     | '/simulado-ia'
     | '/simulados'
     | '/admin/logs'
+    | '/simulado-ia/$id'
     | '/simulado/$id'
     | '/api/public/stripe-webhook'
   fileRoutesByTo: FileRoutesByTo
@@ -192,6 +203,7 @@ export interface FileRouteTypes {
     | '/simulado-ia'
     | '/simulados'
     | '/admin/logs'
+    | '/simulado-ia/$id'
     | '/simulado/$id'
     | '/api/public/stripe-webhook'
   id:
@@ -210,6 +222,7 @@ export interface FileRouteTypes {
     | '/_authenticated/simulado-ia'
     | '/_authenticated/simulados'
     | '/_authenticated/admin/logs'
+    | '/_authenticated/simulado-ia/$id'
     | '/_authenticated/simulado/$id'
     | '/api/public/stripe-webhook'
   fileRoutesById: FileRoutesById
@@ -330,6 +343,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedSimuladoIdRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/simulado-ia/$id': {
+      id: '/_authenticated/simulado-ia/$id'
+      path: '/$id'
+      fullPath: '/simulado-ia/$id'
+      preLoaderRoute: typeof AuthenticatedSimuladoIaIdRouteImport
+      parentRoute: typeof AuthenticatedSimuladoIaRoute
+    }
     '/_authenticated/admin/logs': {
       id: '/_authenticated/admin/logs'
       path: '/logs'
@@ -351,6 +371,20 @@ const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
 const AuthenticatedAdminRouteWithChildren =
   AuthenticatedAdminRoute._addFileChildren(AuthenticatedAdminRouteChildren)
 
+interface AuthenticatedSimuladoIaRouteChildren {
+  AuthenticatedSimuladoIaIdRoute: typeof AuthenticatedSimuladoIaIdRoute
+}
+
+const AuthenticatedSimuladoIaRouteChildren: AuthenticatedSimuladoIaRouteChildren =
+  {
+    AuthenticatedSimuladoIaIdRoute: AuthenticatedSimuladoIaIdRoute,
+  }
+
+const AuthenticatedSimuladoIaRouteWithChildren =
+  AuthenticatedSimuladoIaRoute._addFileChildren(
+    AuthenticatedSimuladoIaRouteChildren,
+  )
+
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminRoute: typeof AuthenticatedAdminRouteWithChildren
   AuthenticatedAppRoute: typeof AuthenticatedAppRoute
@@ -358,7 +392,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedIaRoute: typeof AuthenticatedIaRoute
   AuthenticatedPlanosRoute: typeof AuthenticatedPlanosRoute
   AuthenticatedRedacaoRoute: typeof AuthenticatedRedacaoRoute
-  AuthenticatedSimuladoIaRoute: typeof AuthenticatedSimuladoIaRoute
+  AuthenticatedSimuladoIaRoute: typeof AuthenticatedSimuladoIaRouteWithChildren
   AuthenticatedSimuladosRoute: typeof AuthenticatedSimuladosRoute
   AuthenticatedSimuladoIdRoute: typeof AuthenticatedSimuladoIdRoute
 }
@@ -370,7 +404,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedIaRoute: AuthenticatedIaRoute,
   AuthenticatedPlanosRoute: AuthenticatedPlanosRoute,
   AuthenticatedRedacaoRoute: AuthenticatedRedacaoRoute,
-  AuthenticatedSimuladoIaRoute: AuthenticatedSimuladoIaRoute,
+  AuthenticatedSimuladoIaRoute: AuthenticatedSimuladoIaRouteWithChildren,
   AuthenticatedSimuladosRoute: AuthenticatedSimuladosRoute,
   AuthenticatedSimuladoIdRoute: AuthenticatedSimuladoIdRoute,
 }
