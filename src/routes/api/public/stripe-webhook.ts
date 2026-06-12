@@ -127,8 +127,20 @@ export const Route = createFileRoute("/api/public/stripe-webhook")({
               break;
             }
           }
+          await supabaseAdmin.from("logs_eventos").insert({
+            origem: "stripe",
+            tipo: event.type,
+            status: "ok",
+            mensagem: `Evento ${event.type} processado`,
+          });
         } catch (err: any) {
           console.error("Webhook handler error", err);
+          await supabaseAdmin.from("logs_eventos").insert({
+            origem: "stripe",
+            tipo: event.type,
+            status: "erro",
+            erro: err.message,
+          });
           return new Response(`Handler error: ${err.message}`, { status: 500 });
         }
 
