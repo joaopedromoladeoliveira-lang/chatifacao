@@ -35,11 +35,15 @@ function AuthedLayout() {
   const nav = [
     { to: "/app", label: "Painel", icon: LayoutDashboard },
     { to: "/simulados", label: "Simulados", icon: ClipboardList },
+    { to: "/simulado-ia", label: "Simulados IA", icon: Wand2 },
     { to: "/ia", label: "IA Professora", icon: MessageSquare },
     { to: "/redacao", label: "Redação", icon: PenLine },
     { to: "/desempenho", label: "Desempenho", icon: BarChart3 },
     { to: "/planos", label: "Premium", icon: Sparkles },
-    ...(adminInfo?.isAdmin ? [{ to: "/admin", label: "Admin", icon: Crown }] : []),
+    ...(adminInfo?.isAdmin ? [
+      { to: "/admin", label: "Admin", icon: Crown },
+      { to: "/admin/logs", label: "Logs", icon: Activity },
+    ] : []),
   ] as const;
 
   return (
