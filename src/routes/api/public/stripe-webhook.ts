@@ -21,6 +21,13 @@ export const Route = createFileRoute("/api/public/stripe-webhook")({
         try {
           event = await stripe.webhooks.constructEventAsync(body, signature, webhookSecret);
         } catch (e: any) {
+          const { supabaseAdmin: sa } = await import("@/integrations/supabase/client.server");
+          await sa.from("logs_eventos").insert({
+            origem: "stripe",
+            tipo: "signature_invalid",
+            status: "erro",
+            erro: e.message,
+          });
           return new Response(`Webhook signature error: ${e.message}`, { status: 400 });
         }
 
@@ -120,8 +127,20 @@ export const Route = createFileRoute("/api/public/stripe-webhook")({
               break;
             }
           }
+          await supabaseAdmin.from("logs_eventos").insert({
+            origem: "stripe",
+            tipo: event.type,
+            status: "ok",
+            mensagem: `Evento ${event.type} processado`,
+          });
         } catch (err: any) {
           console.error("Webhook handler error", err);
+          await supabaseAdmin.from("logs_eventos").insert({
+            origem: "stripe",
+            tipo: event.type,
+            status: "erro",
+            erro: err.message,
+          });
           return new Response(`Handler error: ${err.message}`, { status: 500 });
         }
 
