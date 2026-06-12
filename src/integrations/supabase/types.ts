@@ -119,6 +119,42 @@ export type Database = {
         }
         Relationships: []
       }
+      logs_eventos: {
+        Row: {
+          created_at: string
+          erro: string | null
+          id: string
+          mensagem: string | null
+          origem: string
+          payload: Json | null
+          status: string
+          tipo: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          erro?: string | null
+          id?: string
+          mensagem?: string | null
+          origem: string
+          payload?: Json | null
+          status: string
+          tipo: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          erro?: string | null
+          id?: string
+          mensagem?: string | null
+          origem?: string
+          payload?: Json | null
+          status?: string
+          tipo?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       mensagens_ia: {
         Row: {
           content: string
@@ -414,6 +450,51 @@ export type Database = {
           tipo?: string
           titulo?: string
           updated_at?: string
+        }
+        Relationships: []
+      }
+      simulados_ia_sessoes: {
+        Row: {
+          acertos: number | null
+          ano: number
+          area: string
+          created_at: string
+          finalizado_em: string | null
+          id: string
+          nota: number | null
+          questoes: Json
+          respostas: Json
+          total: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          acertos?: number | null
+          ano: number
+          area: string
+          created_at?: string
+          finalizado_em?: string | null
+          id?: string
+          nota?: number | null
+          questoes: Json
+          respostas?: Json
+          total: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          acertos?: number | null
+          ano?: number
+          area?: string
+          created_at?: string
+          finalizado_em?: string | null
+          id?: string
+          nota?: number | null
+          questoes?: Json
+          respostas?: Json
+          total?: number
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }
