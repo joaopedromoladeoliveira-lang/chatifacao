@@ -17,27 +17,38 @@ Estilo:
 - Use markdown (negrito, listas, código) para deixar a resposta legível.
 - Seja amigável, encorajadora e paciente.`;
 
-async function callOpenAI(messages: Array<{ role: string; content: string }>) {
-  const apiKey = process.env.OPENAI_API_KEY;
-  if (!apiKey) throw new Error("OPENAI_API_KEY não configurada");
+const AI_MODEL = "google/gemini-2.5-flash";
 
-  const res = await fetch("https://api.openai.com/v1/chat/completions", {
+async function callAI(
+  messages: Array<{ role: string; content: string }>,
+  opts?: { jsonObject?: boolean; temperature?: number },
+) {
+  const apiKey = process.env.LOVABLE_API_KEY;
+  if (!apiKey) throw new Error("LOVABLE_API_KEY não configurada");
+
+  const body: any = {
+    model: AI_MODEL,
+    messages,
+    temperature: opts?.temperature ?? 0.7,
+  };
+  if (opts?.jsonObject) body.response_format = { type: "json_object" };
+
+  const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      "Authorization": `Bearer ${apiKey}`,
+      "Lovable-API-Key": apiKey,
+      "X-Lovable-AIG-SDK": "vercel-ai-sdk",
     },
-    body: JSON.stringify({
-      model: "gpt-4o-mini",
-      messages,
-      temperature: 0.7,
-    }),
+    body: JSON.stringify(body),
   });
 
   if (!res.ok) {
     const text = await res.text();
-    console.error("OpenAI error:", res.status, text);
-    throw new Error(`Erro da OpenAI: ${res.status}`);
+    console.error("AI Gateway error:", res.status, text);
+    if (res.status === 429) throw new Error("Muitas requisições. Aguarde alguns segundos e tente novamente.");
+    if (res.status === 402) throw new Error("Créditos de IA esgotados. Adicione créditos no workspace para continuar.");
+    throw new Error(`Erro da IA: ${res.status}`);
   }
 
   const data = await res.json();
