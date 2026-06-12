@@ -23,6 +23,7 @@ import { Route as AuthenticatedAppRouteImport } from './routes/_authenticated/ap
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as ApiPublicStripeWebhookRouteImport } from './routes/api/public/stripe-webhook'
 import { Route as AuthenticatedSimuladoIdRouteImport } from './routes/_authenticated/simulado.$id'
+import { Route as AuthenticatedAdminLogsRouteImport } from './routes/_authenticated/admin.logs'
 
 const ResetPasswordRoute = ResetPasswordRouteImport.update({
   id: '/reset-password',
@@ -93,19 +94,25 @@ const AuthenticatedSimuladoIdRoute = AuthenticatedSimuladoIdRouteImport.update({
   path: '/simulado/$id',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedAdminLogsRoute = AuthenticatedAdminLogsRouteImport.update({
+  id: '/logs',
+  path: '/logs',
+  getParentRoute: () => AuthenticatedAdminRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/forgot-password': typeof ForgotPasswordRoute
   '/reset-password': typeof ResetPasswordRoute
-  '/admin': typeof AuthenticatedAdminRoute
+  '/admin': typeof AuthenticatedAdminRouteWithChildren
   '/app': typeof AuthenticatedAppRoute
   '/desempenho': typeof AuthenticatedDesempenhoRoute
   '/ia': typeof AuthenticatedIaRoute
   '/planos': typeof AuthenticatedPlanosRoute
   '/redacao': typeof AuthenticatedRedacaoRoute
   '/simulados': typeof AuthenticatedSimuladosRoute
+  '/admin/logs': typeof AuthenticatedAdminLogsRoute
   '/simulado/$id': typeof AuthenticatedSimuladoIdRoute
   '/api/public/stripe-webhook': typeof ApiPublicStripeWebhookRoute
 }
@@ -114,13 +121,14 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/forgot-password': typeof ForgotPasswordRoute
   '/reset-password': typeof ResetPasswordRoute
-  '/admin': typeof AuthenticatedAdminRoute
+  '/admin': typeof AuthenticatedAdminRouteWithChildren
   '/app': typeof AuthenticatedAppRoute
   '/desempenho': typeof AuthenticatedDesempenhoRoute
   '/ia': typeof AuthenticatedIaRoute
   '/planos': typeof AuthenticatedPlanosRoute
   '/redacao': typeof AuthenticatedRedacaoRoute
   '/simulados': typeof AuthenticatedSimuladosRoute
+  '/admin/logs': typeof AuthenticatedAdminLogsRoute
   '/simulado/$id': typeof AuthenticatedSimuladoIdRoute
   '/api/public/stripe-webhook': typeof ApiPublicStripeWebhookRoute
 }
@@ -131,13 +139,14 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/forgot-password': typeof ForgotPasswordRoute
   '/reset-password': typeof ResetPasswordRoute
-  '/_authenticated/admin': typeof AuthenticatedAdminRoute
+  '/_authenticated/admin': typeof AuthenticatedAdminRouteWithChildren
   '/_authenticated/app': typeof AuthenticatedAppRoute
   '/_authenticated/desempenho': typeof AuthenticatedDesempenhoRoute
   '/_authenticated/ia': typeof AuthenticatedIaRoute
   '/_authenticated/planos': typeof AuthenticatedPlanosRoute
   '/_authenticated/redacao': typeof AuthenticatedRedacaoRoute
   '/_authenticated/simulados': typeof AuthenticatedSimuladosRoute
+  '/_authenticated/admin/logs': typeof AuthenticatedAdminLogsRoute
   '/_authenticated/simulado/$id': typeof AuthenticatedSimuladoIdRoute
   '/api/public/stripe-webhook': typeof ApiPublicStripeWebhookRoute
 }
@@ -155,6 +164,7 @@ export interface FileRouteTypes {
     | '/planos'
     | '/redacao'
     | '/simulados'
+    | '/admin/logs'
     | '/simulado/$id'
     | '/api/public/stripe-webhook'
   fileRoutesByTo: FileRoutesByTo
@@ -170,6 +180,7 @@ export interface FileRouteTypes {
     | '/planos'
     | '/redacao'
     | '/simulados'
+    | '/admin/logs'
     | '/simulado/$id'
     | '/api/public/stripe-webhook'
   id:
@@ -186,6 +197,7 @@ export interface FileRouteTypes {
     | '/_authenticated/planos'
     | '/_authenticated/redacao'
     | '/_authenticated/simulados'
+    | '/_authenticated/admin/logs'
     | '/_authenticated/simulado/$id'
     | '/api/public/stripe-webhook'
   fileRoutesById: FileRoutesById
@@ -299,11 +311,29 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedSimuladoIdRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/admin/logs': {
+      id: '/_authenticated/admin/logs'
+      path: '/logs'
+      fullPath: '/admin/logs'
+      preLoaderRoute: typeof AuthenticatedAdminLogsRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
   }
 }
 
+interface AuthenticatedAdminRouteChildren {
+  AuthenticatedAdminLogsRoute: typeof AuthenticatedAdminLogsRoute
+}
+
+const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
+  AuthenticatedAdminLogsRoute: AuthenticatedAdminLogsRoute,
+}
+
+const AuthenticatedAdminRouteWithChildren =
+  AuthenticatedAdminRoute._addFileChildren(AuthenticatedAdminRouteChildren)
+
 interface AuthenticatedRouteRouteChildren {
-  AuthenticatedAdminRoute: typeof AuthenticatedAdminRoute
+  AuthenticatedAdminRoute: typeof AuthenticatedAdminRouteWithChildren
   AuthenticatedAppRoute: typeof AuthenticatedAppRoute
   AuthenticatedDesempenhoRoute: typeof AuthenticatedDesempenhoRoute
   AuthenticatedIaRoute: typeof AuthenticatedIaRoute
@@ -314,7 +344,7 @@ interface AuthenticatedRouteRouteChildren {
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
-  AuthenticatedAdminRoute: AuthenticatedAdminRoute,
+  AuthenticatedAdminRoute: AuthenticatedAdminRouteWithChildren,
   AuthenticatedAppRoute: AuthenticatedAppRoute,
   AuthenticatedDesempenhoRoute: AuthenticatedDesempenhoRoute,
   AuthenticatedIaRoute: AuthenticatedIaRoute,
@@ -338,3 +368,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
