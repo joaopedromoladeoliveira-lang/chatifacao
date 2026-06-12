@@ -21,6 +21,13 @@ export const Route = createFileRoute("/api/public/stripe-webhook")({
         try {
           event = await stripe.webhooks.constructEventAsync(body, signature, webhookSecret);
         } catch (e: any) {
+          const { supabaseAdmin: sa } = await import("@/integrations/supabase/client.server");
+          await sa.from("logs_eventos").insert({
+            origem: "stripe",
+            tipo: "signature_invalid",
+            status: "erro",
+            erro: e.message,
+          });
           return new Response(`Webhook signature error: ${e.message}`, { status: 400 });
         }
 
