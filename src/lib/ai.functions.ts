@@ -46,6 +46,16 @@ async function callAI(
   if (!res.ok) {
     const text = await res.text();
     console.error("AI Gateway error:", res.status, text);
+    try {
+      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+      await supabaseAdmin.from("logs_eventos").insert({
+        origem: "ia",
+        tipo: `http_${res.status}`,
+        status: "erro",
+        mensagem: text.slice(0, 500),
+        erro: `${res.status} ${res.statusText}`,
+      });
+    } catch {}
     if (res.status === 429) throw new Error("Muitas requisições. Aguarde alguns segundos e tente novamente.");
     if (res.status === 402) throw new Error("Créditos de IA esgotados. Adicione créditos no workspace para continuar.");
     throw new Error(`Erro da IA: ${res.status}`);
@@ -55,8 +65,8 @@ async function callAI(
   return data.choices[0].message.content as string;
 }
 
-const LIMITE_MENSAGENS_DIA_FREE = 20;
-const LIMITE_REDACOES_MES_FREE = 3;
+export const LIMITE_MENSAGENS_DIA_FREE = 50;
+export const LIMITE_REDACOES_MES_FREE = 5;
 
 async function isPremiumUser(supabase: any, userId: string): Promise<boolean> {
   const { data } = await supabase.rpc("is_premium", { _user_id: userId });
