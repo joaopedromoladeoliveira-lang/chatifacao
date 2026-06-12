@@ -203,26 +203,14 @@ export const corrigirRedacao = createServerFn({ method: "POST" })
     const redacaoId = red.id as string;
 
     try {
-      const apiKey = process.env.OPENAI_API_KEY;
-      if (!apiKey) throw new Error("OPENAI_API_KEY não configurada");
-
-      const res = await fetch("https://api.openai.com/v1/chat/completions", {
-        method: "POST",
-        headers: { "Content-Type": "application/json", "Authorization": `Bearer ${apiKey}` },
-        body: JSON.stringify({
-          model: "gpt-4o-mini",
-          response_format: { type: "json_object" },
-          messages: [
-            { role: "system", content: REDACAO_PROMPT },
-            { role: "user", content: `TEMA: ${data.tema}\n\nREDAÇÃO:\n${data.texto}` },
-          ],
-          temperature: 0.3,
-        }),
-      });
-
-      if (!res.ok) throw new Error(`OpenAI ${res.status}`);
-      const json = await res.json();
-      const parsed = JSON.parse(json.choices[0].message.content);
+      const content = await callAI(
+        [
+          { role: "system", content: REDACAO_PROMPT },
+          { role: "user", content: `TEMA: ${data.tema}\n\nREDAÇÃO:\n${data.texto}` },
+        ],
+        { jsonObject: true, temperature: 0.3 },
+      );
+      const parsed = JSON.parse(content);
 
       const clamp = (n: any) => Math.max(0, Math.min(200, Math.round(Number(n) || 0)));
       const c1 = clamp(parsed.c1);
