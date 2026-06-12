@@ -114,7 +114,7 @@ export const sendChatMessage = createServerFn({ method: "POST" })
       { role: "user", content: data.message },
     ];
 
-    const reply = await callOpenAI(messages);
+    const reply = await callAI(messages);
 
     await supabase.from("mensagens_ia").insert({
       conversa_id: data.conversaId,
